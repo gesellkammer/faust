@@ -1,0 +1,33 @@
+declare name        "test";
+declare version     "1.0";
+declare author      "Grame";
+declare license     "BSD";
+declare copyright   "(c) GRAME 2006";
+
+//-------------------------------------------------
+// Simple 8 ch vu-meter with a main gain and mute for each chan
+// The channels flow through (8 in - 8 out) and a gain can be
+// applied to these channels. 
+// It is thought to be used for monitoring at the end of the jack chain
+//-------------------------------------------------
+
+import("music.lib");
+import("math.lib");
+
+// vumeter     = component("vumeter.dsp").vmeter;
+// mute        = (*(1 - checkbox("m")));
+// smooth(c)   = *(1-c) : +~*(c);
+// gain        = vslider("gain", 0, -70, +4, 0.1) : db2linear : smooth(0.999);
+// xgain8(ch1, ch2, ch3, ch4, ch5, ch6, ch7, ch8) = gain <: ((_ * ch1), (_ * ch2), (_*ch3), (_*ch4), (_*ch5), (_*ch6), (_*ch7), (_*ch8));
+
+// voice(v)    = vgroup("ch%v",  vumeter);
+envelop = abs : max ~ -(1.0/SR) : max(db2linear(-70));
+meter(x) = envelop(x);
+// voice(v)    = vgroup("ch%v",  vumeter);
+voice(v) = vgroup("ch%v", meter);
+
+
+// process     = hgroup("IN", par(i, 8, voice(i)));
+// process     = par(i, 1, voice(i));
+// process = _ : voice(1) : _;
+process = _ : _ + 0.1 <: _, _;
